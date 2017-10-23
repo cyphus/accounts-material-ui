@@ -1,8 +1,18 @@
 import React from 'react';
 import {Accounts, STATES} from './fix.js'; // TODO: back to normal once std:accounts-ui is fixed
-import {RaisedButton, FlatButton, FontIcon, TextField, Divider, Snackbar} from 'material-ui';
-import {socialButtonsColors, socialButtonIcons} from './social_buttons_config';
-import {green500, red500, yellow600, lightBlue600} from 'material-ui/styles/colors';
+import {Button as MuiButton, Icon, TextField, Divider, Snackbar} from 'material-ui';
+import {socialButtonsStyles, socialButtonIcons} from './social_buttons_config';
+import {green, red, yellow, lightBlue} from 'material-ui/colors';
+
+
+const styles = {
+  button: {
+    marginRight: '6px'
+  },
+  buttonIcon: {
+    marginRight: '6px'
+  }
+}
 
 /**
  * Form.propTypes = {
@@ -34,7 +44,7 @@ class Form extends Accounts.ui.Form {
       formState
     } = this.props;
     return (
-      <form
+      <form noValidate autoComplete="off"
         ref={(ref) => this.form = ref}
         className={["accounts", className].join(' ')}>
         {Object.keys(fields).length > 0
@@ -71,34 +81,20 @@ class Button extends Accounts.ui.Button {
 			className,
 			icon
 		} = this.props;
-		return type == 'link'
-			? (
-				<FlatButton
-					href={href}
-					label={label}
-					icon={icon
-					? <FontIcon className={`fa ${icon}`}/>
-					: null}
-					className={className}
-					onTouchTap={onClick}
-					disabled={disabled}
-					style={{marginRight: '5px'}}
-					/>
-			)
-			: (
-				<RaisedButton
-					label={label}
-					icon={icon
-					? <FontIcon className={`fa ${icon}`}/>
-					: null}
-					primary={true}
-					type={type}
-					className={className}
-					onTouchTap={onClick}
-					disabled={disabled}
-					style={{marginRight: '5px'}}
-					/>
-			)
+    const Icon = icon;
+    return (
+      <MuiButton
+        raised={ type != 'link' }
+        href={href}
+        className={className}
+        onClick={onClick}
+        disabled={disabled}
+        style={styles.button}
+      >
+        {Icon ? <Icon style={styles.buttonIcon} /> : ''}
+        {label}
+      </MuiButton>
+    );
 	}
 }
 class Fields extends Accounts.ui.Fields {
@@ -109,10 +105,7 @@ class Fields extends Accounts.ui.Fields {
 		} = this.props;
 		return (
 			<div className={[className].join(' ')}>
-				{Object.keys(fields).map((id, i) => <div key={i}>
-					<Accounts.ui.Field {...fields[id]}/>
-					<br/>
-				</div>)}
+				{Object.keys(fields).map((id, i) => <Accounts.ui.Field key={i} {...fields[id]}/>)}
 			</div>
 		);
 	}
@@ -134,21 +127,21 @@ class Field extends Accounts.ui.Field {
 		} = this.state;
 		return mount
 			? (<TextField
-				floatingLabelText={label}
-				hintText={hint}
+				label={label}
+				placeholder={hint}
 				onChange={onChange}
 				fullWidth={true}
 				defaultValue={defaultValue}
 				name={id}
 				type={type}
 				ref={(ref) => this.input = ref}
-				required={required
-				? "required"
-				: ""}
-				autoCapitalize={type == 'email'
-				? 'none'
-				: false}
-				autoCorrect="off"/>)
+				required={ !!required }
+        InputProps={{
+          inputProps: {
+            autoCapitalize: type == 'email' ? 'none'	: false,
+            autoCorrect: "off"
+          }
+        }} />)
 			: null;
 	}
 }
@@ -162,27 +155,22 @@ class SocialButtons extends Accounts.ui.SocialButtons {
 			return (
 				<div className={[className].join(' ')}>
 					{Object.keys(oauthServices).map((id, i) => {
-						let serviceClass = id.replace(/google|meteor\-developer/gi, (matched) => {
-							return socialButtonIcons[matched];
-						});
+						const ServiceIcon = socialButtonIcons[id];
 						const {label, type, onClick, disabled} = oauthServices[id];
+            const serviceClass = 'oauth-service-' + id;
+            const style = Object.assign(socialButtonsStyles[id] || {}, styles.button);
+
 						return (
-							<RaisedButton
-								key={i}
-								label={label}
+							<MuiButton raised	key={i}
 								type={type}
-								onTouchTap={onClick}
+								onClick={onClick}
 								disabled={disabled}
-								className={serviceClass.length > 0
-								? `${serviceClass}`
-								: ''}
-								icon={serviceClass.length > 0
-								? <FontIcon className={`fa fa-${serviceClass}`}/>
-								: ''}
-								backgroundColor={socialButtonsColors[id].background}
-								labelColor={socialButtonsColors[id].label}
-								style={{marginRight: '5px'}}
-								/>
+								className={serviceClass}
+								style={style}
+							>
+                {ServiceIcon ? <ServiceIcon style={styles.buttonIcon} /> : ''}
+                {label}
+              </MuiButton>
 						);
 					})}
 				</div>
@@ -190,11 +178,16 @@ class SocialButtons extends Accounts.ui.SocialButtons {
 		} else {
 			return null;
 		}
-
 	}
 }
 
 
+const bodyStyleColor = {
+  warning: yellow[600],
+  success: green[500],
+  error: red[500],
+  info: lightBlue[600],
+};
 
 class FormMessage extends Accounts.ui.FormMessage {
   constructor(props) {
@@ -216,33 +209,14 @@ class FormMessage extends Accounts.ui.FormMessage {
 
   render() {
     const {message, type} = this.props;
-    let bodyStyle;
-    switch (type) {
-      case 'warning':
-        bodyStyle = {
-          backgroundColor: yellow600
-        }
-        break;
-      case 'success':
-        bodyStyle = {
-          backgroundColor: green500
-        }
-        break;
-      case 'error':
-        bodyStyle = {
-          backgroundColor: red500
-        }
-        break;
-      case 'info':
-        bodyStyle = {
-          backgroundColor: lightBlue600
-        }
-        break;
-    }
+    const {open} = this.state;
+    const bodyStyle = {
+      backgroundColor: bodyStyleColor[type]
+    };
 
     return message
       ? (<Snackbar
-        open={this.state.open}
+        open={open}
         message={message}
         bodyStyle={bodyStyle}
         action="OK"
