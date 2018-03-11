@@ -1,39 +1,52 @@
-export const socialButtonsColors = {
+import {
+	Facebook,
+	Github,
+	GooglePlus,
+	Rocket,
+	Twitter,
+	Pinterest
+} from 'mdi-material-ui'
+
+export const socialButtonsStyles = {
 	facebook: {
-		background: '#3b5998',
-		label: '#fff'
+		backgroundColor: '#3b5998',
+		color: '#fff'
 	},
 	twitter: {
-		background: '#55acee',
-		label: '#fff'
+		backgroundColor: '#55acee',
+		color: '#fff'
 	},
 	github: {
-		background: '#000',
-		label: '#fff'
+		backgroundColor: '#000',
+		color: '#fff'
 	},
 	google: {
-		background: '#dd4b39',
-		label: '#fff'
+		backgroundColor: '#dd4b39',
+		color: '#fff'
 	},
 	'meteor-developer': {
 		backgroundColor: '#bb0000',
-		label: '#fff'
+		color: '#fff'
 	},
 	'meetup': {
-		background: '#ED1C40',
-		label: '#fff'
+		backgroundColor: '#ED1C40',
+		color: '#fff'
 	},
 	weibo: {
-		background: '#faf6f1',
-		label: '#000'
+		backgroundColor: '#faf6f1',
+		color: '#000'
 	},
 	pinterest: {
-		background: '#bd081c',
-		label: '#fff'
+		backgroundColor: '#bd081c',
+		color: '#fff'
 	}
 }
 
 export const socialButtonIcons = {
-	google: "google-plus",
-	"meteor-developer": "rocket"
+	facebook: Facebook,
+	twitter: Twitter,
+	github: Github,
+	google: GooglePlus,
+	"meteor-developer": Rocket,
+	pinterest: Pinterest
 };
